@@ -16,110 +16,92 @@ class GestorTareas {
         this.ultimoId = 0;
     }
 
+    agregarTarea(titulo) {
+        const nuevaTarea = new Tarea(++this.ultimoId, titulo);
+        this.tareas.push(nuevaTarea);
+    }
 
-agrearTarea(titulo) {
-    const nuevaTarea = new Tarea(++this.ultimoId, titulo);
-    this.tareas.push(nuevaTarea);
-}
+    listarTareas() {
+        this.tareas.forEach(t => {
+            console.log(`#${t.id} - ${t.titulo} | completada: ${t.completada}`);
+        });
+    }
 
-listarTareas() {
-    this.tareas.forEach(t => {
-        console.log(`#${t.id} - ${t.titulo} | completada: ${t.completada}`);
-    })
-}
+    buscarPorTitulo(titulo) {
+        return this.tareas.find(
+            t => t.titulo.toLowerCase() === titulo.toLowerCase()
+        );
+    }
 
-buscarPorTitulo(titulo) {
-    return this.tareas.find(t => t.titulo.toLowerCase() === titulo.toLowerCase());
-}
+    listarCompletadas() {
+        return this.tareas.filter(t => t.completada);
+    }
 
-listarCompletadas() {
-    return this.tareas.filter(t => t.completada);
-}
-
-obtenerTitulos () {
-    return this.tareas.map(t => t.titulo);
-}
+    obtenerTitulos() {
+        return this.tareas.map(t => t.titulo);
+    }
 }
 
 function cargarTareas() {
-    return new Promise((resolve) => {
-        console.log("Cargando");
+    return new Promise(resolve => {
+        console.log("Cargando tareas...");
         setTimeout(() => {
-            const tareas = [
-                { id: 1, titulo: "Tarea 1", completada: false},
-                { id: 2, titulo: "Tarea 2", completada: true},
-                { id: 3, titulo: "Tarea 3", completada: false}
-            ];
-
-            resolve(tareas);
+            resolve([
+                { id: 1, titulo: "Tarea 1", completada: false },
+                { id: 2, titulo: "Tarea 2", completada: true },
+                { id: 3, titulo: "Tarea 3", completada: false }
+            ]);
         }, 2000);
     });
 }
 
-
-function cargaUsuarios() {
-    return new Promise((resolve) => {
-        console.log("Cargando usuarios");
+function cargarUsuarios() {
+    return new Promise(resolve => {
+        console.log("Cargando usuarios...");
         setTimeout(() => {
-            const usuarios = [
+            resolve([
                 { id: 1, nombre: "Bruno" },
                 { id: 2, nombre: "Gabriel" },
                 { id: 3, nombre: "Luisa" }
-            ];
-            resolve(usuarios);
+            ]);
         }, 1600);
     });
 }
 
 async function iniciar() {
+    console.log("Empieza");
+
     const gestor = new GestorTareas();
 
     const [tareasCargadas, usuariosCargados] = await Promise.all([
         cargarTareas(),
         cargarUsuarios()
     ]);
-    iniciar();
-    
-    console.log("\nTareas y usuarios cargados\n");
-
 
     tareasCargadas.forEach(tarea => {
         gestor.ultimoId = Math.max(gestor.ultimoId, tarea.id);
-        gestor.tareas.push(new Tarea(tarea.id, tarea.titulo, tarea.completada));
+        gestor.tareas.push(
+            new Tarea(tarea.id, tarea.titulo, tarea.completada)
+        );
     });
 
+    console.log("\nLista de tareas:");
+    gestor.listarTareas();
 
-console.log("Lista de tareas:");
-gestor.listarTareas();
-console.log("\n");
+    gestor.agregarTarea("Hacer la próxima");
 
-const titulos = gestor.obtenerTitulos();
-console.log("Títulos tareas:");
-console.log(titulos);
-console.log("\n");
+    console.log("\nDespués de agregar tarea:");
+    gestor.listarTareas();
 
+    console.log("\nTareas completadas:");
+    gestor.listarCompletadas().forEach(t =>
+        console.log(`#${t.id} - ${t.titulo}`)
+    );
 
-gestor.agregarTarea("Hacer la próxima");
-console.log("Agregar una nueva tarea:");
-gestor.listarTareas();
-console.log("\n");
-
-const completadas = gestor.listarCompletadas();
-console.log("Tareas completadas:");
-completadas.forEach(t => console.log(`#${t.id} - ${t.titulo}`));
-console.log("\n");   
-
-console.log("Usuarios cargados:");
-usuariosCargados.forEach(u => console.log(`#${u.id} - ${u.nombre}`));
+    console.log("\nUsuarios cargados:");
+    usuariosCargados.forEach(u =>
+        console.log(`#${u.id} - ${u.nombre}`)
+    );
 }
 
-
-
-async function iniciar() {
-  console.log("Empieza");
-  const tareasCargadas = await cargarTareas();
-  console.log("Tareas cargadas:", tareasCargadas);
-}
-
-
-iniciar(); 
+iniciar();
